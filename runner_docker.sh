@@ -1,11 +1,12 @@
-container_name=layer_builder_docker
-docker_image=layer_builder_image
+container=layer_builder_container
+image=layer_builder_image
 
-docker build -t $docker_image .
-docker run -td --name=$container_name $docker_image
-docker cp ./requirements.txt $container_name:/
+docker build -t $image .
+docker run -td --name=$container $image
+docker cp ./requirements.txt $container:/
 
-docker exec -i $container_name /bin/bash < ./docker_install.sh
-docker cp $container_name:/tmp/python_layer.zip python_layer.zip
-docker stop $container_name
-docker rm $container_name
+docker exec -i $container /bin/bash < ./docker_install.sh
+docker cp $container:/tmp/python_layer.zip python_layer.zip
+docker stop $container
+docker rm $container
+docker rmi $image:latest
