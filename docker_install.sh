@@ -1,4 +1,4 @@
-python3 -m venv python
+python3.14 -m venv python
 source python/bin/activate
 
 pip3 install -r requirements.txt -t python/lib/python*/site-packages
