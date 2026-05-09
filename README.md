@@ -24,6 +24,5 @@ Architecture : x86_64
 
 # Change Python Runtime or Architecture
 - If you wish to use a different Python runtime like 3.11, 3.12 etc, you can import a newer [Amazon Linux base image](https://hub.docker.com/_/amazonlinux) in the Dockerfile.  
-This generally comes with a new stable version of Python  
 - You can also install a [specific version of Python](https://www.python.org/downloads/) by updating the ```yum install``` lines of the Dockerfile
 - arm64 has known unresolved issues on Lambda with Python as of 20240322, so I recommend against it for now
