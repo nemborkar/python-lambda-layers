@@ -1,7 +1,11 @@
-# amazonlinux:2023 has python 3.9 + venv
+ARG PYTHON_VERSION=3.14
+
 FROM amazonlinux:2023
 
-# We will need pip3 and zip
-RUN yum -y update && yum -y install \
-python3-pip \
+RUN yum -y update && \
+yum -y install \
+python${PYTHON_VERSION} \
+rsync \
 zip
+
+ENV PYTHON_VERSION=${PYTHON_VERSION}

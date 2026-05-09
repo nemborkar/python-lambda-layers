@@ -1,11 +1,17 @@
-container_name=layer_builder_docker
-docker_image=layer_builder_image
+CONTAINER=layer_builder
+IMAGE=layer_builder_img
+RUNTIME=$(command -v podman || command -v docker)
 
-docker build -t $docker_image .
-docker run -td --name=$container_name $docker_image
-docker cp ./requirements.txt $container_name:/
+$RUNTIME build -t $IMAGE .
+$RUNTIME run -td --name=$CONTAINER $IMAGE
+$RUNTIME cp ./requirements.txt $CONTAINER:/
 
-docker exec -i $container_name /bin/bash < ./docker_install.sh
-docker cp $container_name:/python.zip python.zip
-docker stop $container_name
-docker rm $container_name
+$RUNTIME exec -i $CONTAINER /bin/bash < ./install.sh
+$RUNTIME cp $CONTAINER:/tmp/python_layer.zip python_layer.zip
+$RUNTIME stop $CONTAINER
+
+$RUNTIME rm $CONTAINER
+$RUNTIME rmi $IMAGE:latest
+
+echo "Layer is ready..."
+echo "Size: $(du -sh python_layer.zip)"
