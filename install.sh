@@ -1,4 +1,4 @@
-python3.14 -m venv python
+python${PYTHON_VERSION} -m venv python
 source /python/bin/activate
 
 pip install --upgrade pip
