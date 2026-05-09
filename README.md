@@ -1,28 +1,49 @@
-# lambda-layers
-To run Python functions in AWS Lambda with extra imported packages, we need to have these packages in Lambda Layers  
-However making the layers locally uses your local environment's Python Runtime, OS and CPU Architecture.  
-So the zip files we upload to the Lambda layers can be very hit or miss (mostly miss)  
+# Lambda Layers for Python Runtimes
+### Problem
+To import packages in AWS Lambda Functions, they are required as Lambda Layers  
 
-This repo tries to solve that problem with the following steps,
-1. Create an Amazon Linux container
-2. Install the required packages with requirements.txt and pip3
-3. Generate the zip file INSIDE the container
-4. Output the zip file to your local machine
+These layers need to match the language runtime/version, architecture, lambda operating system, etc. Creating these in local environments can cause unforeseen inconsistencies and potential compatibility issues  
+&nbsp;
+
+# Solution
+This repo tries to solve the problem by standardising the environment using a container. The packages are baked into layers inside this standard container. A .zip artifact is generated, which can be easily uploaded to Lambda Layers    
+
 
 # Usage
-1. update requirements.txt with the packages you want in the layer
-- Use specific versions, if possible.  eg: ```requests==2.31.0``` instead of ```requests```  
-- [Syntax for requirements.txt](https://pip.pypa.io/en/stable/reference/requirements-file-format/)
-- [Introduction to requirements.txt](https://www.freecodecamp.org/news/python-requirementstxt-explained/)  
+1. Update `requirements.txt` with the packages you want in the layer  
+[Syntax options for requirements.txt](https://pip.pypa.io/en/stable/reference/requirements-file-format/)
+2. Make sure podman or docker daemon is running
+3. Execute `runner.sh` script and it will generate the `python_layer.zip` artifact  
+4. Upload `python_layer.zip` to Lambda Layers and use it in your Python Lambda function(s)  
 
-2. run the runner.sh script and it will generate the python.zip file  
-```./runner.sh```
 
-3. upload this python.zip file to Lambda layers and use with,  
-Python Runtime : Python 3.9  
-Architecture : x86_64  
 
-# Change Python Runtime or Architecture
-- If you wish to use a different Python runtime like 3.11, 3.12 etc, you can import a newer [Amazon Linux base image](https://hub.docker.com/_/amazonlinux) in the Dockerfile.  
-- You can also install a [specific version of Python](https://www.python.org/downloads/) by updating the ```yum install``` lines of the Dockerfile
-- arm64 has known unresolved issues on Lambda with Python as of 20240322, so I recommend against it for now
+### Following is done automatically by `runner.sh`
+1. Create an Amazon Linux container
+2. Install the required packages written in requirements.txt with pip
+3. Generate the zip file INSIDE the container so as to match the Lambda environment
+4. Output the zip file to your local machine which you can upload to Lambda Layers
+5. Delete the Amazon Linux container and image to free up space (can be disabled in `runner.sh` file)  
+
+&nbsp;
+
+# Supported Defaults
+> [!NOTE]
+> Python Runtime: Python 3.14  
+> Lambda Operating System: Amazon Linux 2023  
+> Architecture: x86_64  
+> Container Runtimes: Podman, Docker  
+
+# Support for other Python versions
+If you wish to build layers for Python runtimes/versions other than 3.14, 
+1. [Note the operating system necessary for your python runtime.](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtimes-supported)  
+This repo uses Amazon Linux 2023 by default. But if your runtime/version needs a different operating system, you can find the specific image tags on [amazonlinux dockerhub](https://hub.docker.com/_/amazonlinux). Use that tag in the `Dockerfile`
+
+2. Update the `PYTHON_VERSION` argument in the `Dockerfile`  
+3. Execute `runner.sh`
+
+
+# Future Considerations
+- Support for arm64 architecture
+- Support runtimes for other languages
+- Support other popular container runtimes
